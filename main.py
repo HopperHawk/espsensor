@@ -12,12 +12,12 @@ from umqtt.simple import MQTTClient
 
 # ========== NETWORK ========== #
 def connect_network():
-    if config['wifi'][0]['status'] == 1:
+    if config['wifi']['status'] == 1:
         sta_if = network.WLAN(network.STA_IF)
         if not sta_if.isconnected():
             sta_if.active(True)
             sta_if.config(dhcp_hostname="hopperhawk")
-            sta_if.connect(config['wifi'][0]['ssid'], config['wifi'][0]['password'])
+            sta_if.connect(config['wifi']['ssid'], config['wifi']['password'])
             while not sta_if.isconnected():
                 pass
         return sta_if.ifconfig()
@@ -56,13 +56,13 @@ async def api_status(request):
 async def api_calibrate(request,level):
     global config
     if request.method == 'GET':
-        return str(config['hopper'][0][(str(level)+'_measurement')])
+        return str(config['hopper'][(str(level)+'_measurement')])
     elif request.method == 'POST':
-        config['hopper'][0][(str(level)+'_measurement')] = take_measurement()
+        config['hopper'][(str(level)+'_measurement')] = take_measurement()
         with open('config.json', 'w') as f:
             json.dump(config,f)
         
-        return str(config['hopper'][0][(str(level)+'_measurement')])
+        return str(config['hopper'][(str(level)+'_measurement')])
 
 # Return current level
 @api.route('/level')
@@ -81,18 +81,18 @@ async def api_sysconfig(request,setting):
     global config
     if request.method == 'GET':
         if setting == 'wifi':
-            return json.dumps(config['wifi'][0]), 200
+            return json.dumps(config['wifi']), 200
         if setting == 'mqtt':
-            return json.dumps(config['mqtt'][0]), 200
+            return json.dumps(config['mqtt']), 200
         if setting == 'hopper':
-            return json.dumps(config['hopper'][0]), 200
+            return json.dumps(config['hopper']), 200
 
     if request.method == 'POST':
         if setting == 'wifi':
             # Load configs from POST
-            config['wifi'][0]['status'] = request.data['status']
-            config['wifi'][0]['ssid'] = request.data['ssid']
-            config['wifi'][0]['password'] = request.data['password']
+            config['wifi']['status'] = request.data['status']
+            config['wifi']['ssid'] = request.data['ssid']
+            config['wifi']['password'] = request.data['password']
             
             # Save
             with open('config.json', 'w') as f:
@@ -102,11 +102,11 @@ async def api_sysconfig(request,setting):
 
         if setting == 'mqtt':
             # Load configs from POST
-            config['mqtt'][0]['status'] = request.data['status']
-            config['mqtt'][0]['user'] = request.data['user']
-            config['mqtt'][0]['password'] = request.data['password']
-            config['mqtt'][0]['broker_ip'] = request.data['broker_ip']
-            config['mqtt'][0]['broker_port'] = request.data['broker_port']
+            config['mqtt']['status'] = request.data['status']
+            config['mqtt']['user'] = request.data['user']
+            config['mqtt']['password'] = request.data['password']
+            config['mqtt']['broker_ip'] = request.data['broker_ip']
+            config['mqtt']['broker_port'] = request.data['broker_port']
 
             # Save
             with open('config.json', 'w') as f:
@@ -116,7 +116,7 @@ async def api_sysconfig(request,setting):
 
         if setting == 'hopper':
             # Load configs from POST
-            config['hopper'][0]['frequency'] = request.data['frequency']
+            config['hopper']['frequency'] = request.data['frequency']
 
             # Save
             with open('config.json', 'w') as f:
@@ -133,7 +133,7 @@ async def api_sysconfig(request,setting):
 # Push data to MQTT broker
 def mqtt_publish(l,t,b):
     # Configure MQTT client
-    client = MQTTClient('hopperhawk',config['mqtt'][0]['ip'], config['mqtt'][0]['port'], config['mqtt'][0]['user'], config['mqtt'][0]['password'], keepalive=60)
+    client = MQTTClient('hopperhawk',config['mqtt']['ip'], config['mqtt']['port'], config['mqtt']['user'], config['mqtt']['password'], keepalive=60)
     
     # Try to connect and publish
     try:
@@ -188,7 +188,7 @@ def calc_remaining():
     # Take a measurement and calculate remaining
     level = take_measurement()
     try:
-        p_level = ((level-config['hopper'][0]['empty_measurement'])*100)/(config['hopper'][0]['full_measurement']-config['hopper'][0]['empty_measurement'])
+        p_level = ((level-config['hopper']['empty_measurement'])*100)/(config['hopper']['full_measurement']-config['hopper']['empty_measurement'])
     except ZeroDivisionError:
         p_level = 0
 
@@ -229,11 +229,11 @@ def sensor_routine():
             current_level = calc_remaining()
     
             # If MQTT is enabled, publish the data
-            if config['mqtt'][0]['status'] == 1:
-                mqtt_publish(str(current_level),config['hopper'][0]['current_pellets'], str(check_battery()))
+            if config['mqtt']['status'] == 1:
+                mqtt_publish(str(current_level),config['hopper']['current_pellets'], str(check_battery()))
 
             # Sleep for user-defined amount of time before polling again
-            await asyncio.sleep(config['hopper'][0]['poll_frequency'])
+            await asyncio.sleep(config['hopper']['poll_frequency'])
 # ============================ #
 
 
@@ -255,7 +255,19 @@ async def main():
 
 if __name__ == '__main__':
     # Load the config file
-    config = json.load(open("config.json","r"))
+    try:
+        config = json.load(open("config.json","r"))
+    except:
+        config = {
+            'wifi': {'status':0,'ssid':"",'password':""},
+            'mqtt': {'status':0,'password':"",'client_id':"",'ip':"",'port':1883,'user':""},
+            'hopper': {'full_measurement':10,'empty_measurement':75,'current_pellets':"",'poll_frequency':300}
+        }
+        
+        with open('config.json', 'w') as f:
+            json.dump(config,f)
+            
+        
 
     # Working variables
     current_level = 0
@@ -268,6 +280,10 @@ if __name__ == '__main__':
     # Start
     asyncio.run(main())
 # ========================== #
+
+
+
+
 
 
 
