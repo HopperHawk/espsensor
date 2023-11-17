@@ -71,7 +71,7 @@ async def api_measure(request):
 
 # System reboot
 @api.route('/system/<action>', methods=['POST'])
-async def api_syscontrol(request,level):
+async def api_syscontrol(request,action):
     if action == 'reboot':
         machine.reset()
 
