@@ -21,7 +21,6 @@ The device includes a holder for an 18650 battery, if installed HopperHawk will 
 
 ## API
 
-#### Keg Management
 
 <details>
  <summary><code>GET</code> <code><b>/status</b></code> <code>(gets the current status of the system including pellet level and battery percentage)</code></summary>
@@ -52,11 +51,11 @@ The device includes a holder for an 18650 battery, if installed HopperHawk will 
 
 ##### Parameters
 
-> | setting | name   |  type      | data type      | description                                          |
-> | ------- |--------|------------|----------------|------------------------------------------------------|
-> | `wifi` | `status` | required | int | Enable (1) or Disable (0) connecting to your own wifi          |
-> | `wifi` | `ssid` | required | string | The SSID of your wifi         |
-> | `wifi` | `password` | required | string | The password of your wifi         |
+> | name   |  type      | data type      | description                                          |
+> | --------|------------|----------------|------------------------------------------------------|
+> |  `status` | required | int | Enable (1) or Disable (0) connecting to your own wifi          |
+> |  `ssid` | required | string | The SSID of your wifi         |
+> | `password` | required | string | The password of your wifi         |
 
 </details>
 
@@ -67,13 +66,13 @@ The device includes a holder for an 18650 battery, if installed HopperHawk will 
 
 ##### Parameters
 
-> | setting | name   |  type      | data type      | description                                          |
-> | ------- |--------|------------|----------------|------------------------------------------------------|
-> | `mqtt` | `status` | required | int | Enable (1) or Disable (0) publishing to MQTT server          |
-> | `mqtt` | `user` | required | string | The username for the MQTT broker        |
-> | `mqtt` | `password` | required | string | The password of the MQTT broker         |
-> | `mqtt` | `broker_ip` | required | string | The IP Address of the MQTT broker       |
-> | `mqtt` | `broker_port` | required | int | The port of the MQTT broker        |
+> | name   |  type      | data type      | description                                          |
+> | --------|------------|----------------|------------------------------------------------------|
+> | `status` | required | int | Enable (1) or Disable (0) publishing to MQTT server          |
+> |  `user` | required | string | The username for the MQTT broker        |
+> |  `password` | required | string | The password of the MQTT broker         |
+> |  `broker_ip` | required | string | The IP Address of the MQTT broker       |
+> |  `broker_port` | required | int | The port of the MQTT broker        |
 
 </details>
 
@@ -83,9 +82,9 @@ The device includes a holder for an 18650 battery, if installed HopperHawk will 
 
 ##### Parameters
 
-> | setting | name   |  type      | data type      | description                                          |
-> | ------- |--------|------------|----------------|------------------------------------------------------|
-> | `hopper` | `frequency` | required | int | Frequency in seconds that the sensor will take a new measurement         |
+> | name   |  type      | data type      | description                                          |
+> | --------|------------|----------------|------------------------------------------------------|
+> |`frequency` | required | int | Frequency in seconds that the sensor will take a new measurement         |
 
 
 </details>
