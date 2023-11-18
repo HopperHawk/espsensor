@@ -14,6 +14,8 @@ from umqtt.simple import MQTTClient
 def connect_network():
     if config['wifi']['status'] == 1:
         sta_if = network.WLAN(network.STA_IF)
+        ap_if = network.WLAN(network.AP_IF)
+        ap_if.active(False)
         if not sta_if.isconnected():
             sta_if.active(True)
             sta_if.config(dhcp_hostname="hopperhawk")
@@ -88,11 +90,12 @@ async def api_sysconfig(request,setting):
             return json.dumps(config['hopper']), 200
 
     if request.method == 'POST':
+
         if setting == 'wifi':
             # Load configs from POST
-            config['wifi']['status'] = request.data['status']
-            config['wifi']['ssid'] = request.data['ssid']
-            config['wifi']['password'] = request.data['password']
+            config['wifi']['status'] = request.json['status']
+            config['wifi']['ssid'] = request.json['ssid']
+            config['wifi']['password'] = request.json['password']
             
             # Save
             with open('config.json', 'w') as f:
@@ -102,11 +105,11 @@ async def api_sysconfig(request,setting):
 
         if setting == 'mqtt':
             # Load configs from POST
-            config['mqtt']['status'] = request.data['status']
-            config['mqtt']['user'] = request.data['user']
-            config['mqtt']['password'] = request.data['password']
-            config['mqtt']['broker_ip'] = request.data['broker_ip']
-            config['mqtt']['broker_port'] = request.data['broker_port']
+            config['mqtt']['status'] = request.json['status']
+            config['mqtt']['user'] = request.json['user']
+            config['mqtt']['password'] = request.json['password']
+            config['mqtt']['broker_ip'] = request.json['broker_ip']
+            config['mqtt']['broker_port'] = request.json['broker_port']
 
             # Save
             with open('config.json', 'w') as f:
@@ -116,7 +119,8 @@ async def api_sysconfig(request,setting):
 
         if setting == 'hopper':
             # Load configs from POST
-            config['hopper']['frequency'] = request.data['frequency']
+            config['hopper']['poll_frequency'] = request.json['poll_frequency']
+            config['hopper']['current_pellets'] = request.json['current_pellets']
 
             # Save
             with open('config.json', 'w') as f:
@@ -133,7 +137,7 @@ async def api_sysconfig(request,setting):
 # Push data to MQTT broker
 def mqtt_publish(l,t,b):
     # Configure MQTT client
-    client = MQTTClient('hopperhawk',config['mqtt']['ip'], config['mqtt']['port'], config['mqtt']['user'], config['mqtt']['password'], keepalive=60)
+    client = MQTTClient('hopperhawk',config['mqtt']['broker_ip'], config['mqtt']['broker_port'], config['mqtt']['user'], config['mqtt']['password'], keepalive=60)
     
     # Try to connect and publish
     try:
@@ -260,7 +264,7 @@ if __name__ == '__main__':
     except:
         config = {
             'wifi': {'status':0,'ssid':"",'password':""},
-            'mqtt': {'status':0,'password':"",'client_id':"",'ip':"",'port':1883,'user':""},
+            'mqtt': {'status':0,'password':"",'client_id':"hopperhawk",'broker_ip':"",'broker_port':1883,'user':""},
             'hopper': {'full_measurement':10,'empty_measurement':75,'current_pellets':"",'poll_frequency':300}
         }
         
@@ -275,7 +279,7 @@ if __name__ == '__main__':
     
     # Configure the network
     status = connect_network()
-    print('[Network Configuration]\n' + str(status))
+
 
     # Start
     asyncio.run(main())

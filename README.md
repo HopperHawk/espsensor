@@ -31,15 +31,15 @@ The device includes a holder for an 18650 battery, if installed HopperHawk will 
 </details>
 
 <details>
- <summary><code>GET</code> <code><b>/configure/<setting></b></code> <code>(gets the current configuration for the provided setting (wifi, mqtt, hopper))</code></summary>
+ <summary><code>GET</code> <code><b>/configure/\<setting\></b></code> <code>(gets the current configuration for the provided setting (wifi, mqtt, hopper))</code></summary>
 </details>
 
 <details>
- <summary><code>GET</code> <code><b>/calibrate/<level></b></code> <code>(gets the measurement for either 'full' or 'empty')</code></summary>
+ <summary><code>GET</code> <code><b>/calibrate/\<level\></b></code> <code>(gets the measurement for either 'full' or 'empty')</code></summary>
 </details>
 
 <details>
-  <summary><code>POST</code> <code><b>/calibrate/<level></b></code> <code>(takes a new measurement and saves it as either the 'full' or 'empty' level)</code></summary>
+  <summary><code>POST</code> <code><b>/calibrate/\<level\></b></code> <code>(takes a new measurement and saves it as either the 'full' or 'empty' level)</code></summary>
 </details>
 
 <details>
@@ -84,7 +84,8 @@ The device includes a holder for an 18650 battery, if installed HopperHawk will 
 
 > | name   |  type      | data type      | description                                          |
 > | --------|------------|----------------|------------------------------------------------------|
-> |`frequency` | required | int | Frequency in seconds that the sensor will take a new measurement         |
+> |`poll_frequency` | required | int | Frequency in seconds that the sensor will take a new measurement         |
+> |`current_pellets` | required | string | Current pellets in the hopper        |
 
 
 </details>
