@@ -49,7 +49,7 @@ api = Microdot()
 @api.route('/status')
 async def api_status(request):
     try:
-        return json.dumps({'alive':True,'pellet_level':(str(calc_remaining())+'%'),'battery_level':(str(check_battery())+'%')})
+        return json.dumps({'alive':True,'pellet_level':(str(calc_remaining())+'%'),'battery_level':(str(check_battery())+"v")})
     except:
         return json.dumps({'alive':False})
 
@@ -166,6 +166,8 @@ def mqtt_publish(l,t,b):
 scan_trigger = Pin(23, Pin.OUT)
 scan_echo = Pin(22, Pin.IN)
 battery = ADC(Pin(34, Pin.IN))
+battery.atten(ADC.ATTN_11DB)
+battery.width(ADC.WIDTH_12BIT)
 
 # Take a measurement and return in cm
 def take_measurement():
@@ -208,20 +210,15 @@ def calc_remaining():
 # Check the battery level
 def check_battery():
     # Battery references
-    max_battery_voltage = 4.2
-    min_battery_voltage = 2.3
+    max_battery_voltage = 3.6
+    min_battery_voltage = 3.0
     
     # Get current voltage and estimate life remaining
-    voltage = (battery.read_u16() * (3.3/65535))*2
+    voltage = (battery.read() * (3.6/4096))*2
+    voltage = voltage - (voltage*.05)
     battery_life = ((voltage - min_battery_voltage) / (max_battery_voltage - min_battery_voltage)) * 100;
-
-    # Report the estimated battery life
-    if battery_life > 100:
-        return 100
-    elif battery_life < 0:
-        return 0
-    else:
-        return battery_life
+    
+    return round(voltage,2)
     
     # Primary function to poll sensor and report data via MQTT
 def sensor_routine():
